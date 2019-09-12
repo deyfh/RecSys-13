@@ -10,27 +10,27 @@ from lib.metrics import precisionk, recallk
 
 def read_training_data():
     train_data = open(train_file, 'r').readlines()
-    training_tuples = set()  # 创建空集
-    visited_lids = defaultdict(set)
+    training_tuples = set()  # 标记用户和POI?
+    visited_lids = defaultdict(set)     # 用户uid对应的POI矩阵lid？
     for earline in train_data:
         uid, lid, _ = earline.strip().split()   # 去空白 分割
         uid, lid, = int(uid), int(lid)
-        training_tuples.add((uid, lid))
-        visited_lids[uid].add(lid)
+        training_tuples.add((uid, lid))  # 把uid lid放入training_tuples？why
+        visited_lids[uid].add(lid)  # defaultdict(<class 'set'>, {5: {5, 6}, 6: {5}})字典套集合
 
     check_in_data = open(check_in_file, 'r').readlines()
-    training_tuples_with_time = defaultdict(int)
+    training_tuples_with_time = defaultdict(int)    # 统计用户 不同时间 的访问频率
     for earline in check_in_data:
         uid, lid, ctime = earline.strip().split()   # ?ctime?
         uid, lid, ctime = int(uid), int(lid), float(ctime)
         if (uid, lid) in training_tuples:
             hour = time.gmtime(ctime).tm_hour   # 获取 时（0-24）
-            training_tuples_with_time[(hour, uid, lid)] += 1.0  # 时间 uid lid
+            training_tuples_with_time[(hour, uid, lid)] += 1.0  # 根据 时间 uid lid  每check_in 一次＋1
 
     # Default setting: time is partitioned to 24 hours.
     sparse_training_matrices = [sparse.dok_matrix((user_num, poi_num)) for _ in range(24)]  # 下标0开始
     for (hour, uid, lid), freq in training_tuples_with_time.items():
-        sparse_training_matrices[hour][uid, lid] = 1.0 / (1.0 + 1.0 / freq)
+        sparse_training_matrices[hour][uid, lid] = 1.0 / (1.0 + 1.0 / freq)  # 将数据按时间分配到24个矩阵中
     return sparse_training_matrices, training_tuples, visited_lids
 
 
@@ -59,7 +59,7 @@ def main():
     np.random.shuffle(all_uid_s)
 
     precision, recall = [], []
-    for cnt, uid in enumerate(all_uid_s):
+    for cnt, uid in enumerate(all_uid_s):  # 标号 0开始
         if uid in ground_truth:
             overall_scores = [TAMF.predict(uid, lid)
                               if (uid, lid) not in training_tuples else -1
