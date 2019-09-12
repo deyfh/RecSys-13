@@ -28,7 +28,7 @@ def read_training_data():
             training_tuples_with_time[(hour, uid, lid)] += 1.0  # 时间 uid lid
 
     # Default setting: time is partitioned to 24 hours.
-    sparse_training_matrices = [sparse.dok_matrix((user_num, poi_num)) for _ in range(24)]
+    sparse_training_matrices = [sparse.dok_matrix((user_num, poi_num)) for _ in range(24)]  # 下标0开始
     for (hour, uid, lid), freq in training_tuples_with_time.items():
         sparse_training_matrices[hour][uid, lid] = 1.0 / (1.0 + 1.0 / freq)
     return sparse_training_matrices, training_tuples, visited_lids
