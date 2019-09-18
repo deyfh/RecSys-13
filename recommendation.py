@@ -30,7 +30,7 @@ def read_training_data():
     # Default setting: time is partitioned to 24 hours.
     sparse_training_matrices = [sparse.dok_matrix((user_num, poi_num)) for _ in range(24)]  # 下标0开始
     for (hour, uid, lid), freq in training_tuples_with_time.items():
-        sparse_training_matrices[hour][uid, lid] = 1.0 / (1.0 + 1.0 / freq)  # 将数据按时间分配到24个矩阵中
+        sparse_training_matrices[hour][uid, lid] = 1.0 / (1.0 + 1.0 / freq)  # 正则化[0,1]
     return sparse_training_matrices, training_tuples, visited_lids
 
 
@@ -48,7 +48,7 @@ def main():
     sparse_training_matrices, training_tuples, visited_lids = read_training_data()
     ground_truth = read_ground_truth()
 
-    TAMF.train(sparse_training_matrices, max_iters=30, load_sigma=False)
+    TAMF.train(sparse_training_matrices, max_iters=100, load_sigma=False)
     TAMF.save_model("./tmp/")
     # TAMF.load_model("./tmp/")
 

@@ -51,7 +51,7 @@ class TimeAwareMF(object):
     def init_sigma(self, C, M, T):
         ctime = time.time()
         print("Initializing sigma...",)
-        sigma = [np.zeros(M) for _ in range(T)]
+        sigma = [np.zeros(M) for _ in range(T)]   # T个1列的array
         for t in range(T):
             C[t] = C[t].tocsr()
             for i in range(M):
